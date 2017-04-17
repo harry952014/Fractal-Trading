@@ -230,7 +230,7 @@ public class SymbolTester {
 			}
 		}
 		
-		//if now swing low found, set the target below the entry price 
+		//if no swing low found, set the target below the entry price 
 		//the range between entry price and stop loss.
 		return entP - (SL - entP);
 	}
@@ -251,7 +251,7 @@ public class SymbolTester {
 			}
 		}
 		
-		//if now swing high found, set the target above the entry price 
+		//if no swing high found, set the target above the entry price 
 		//twice the range between entry price and stop loss.
 		return entP + (2*(entP - SL));
 	}
