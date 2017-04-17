@@ -16,14 +16,31 @@ private String fileName;
 //private String url = "http://chart.finance.yahoo.com/table.csv?s=GOOG&a=1&b=14&c=2013&d=3&e=14&f=2017&g=d&ignore=.csv";
 	
 
-	public YahooData(String s, String d, Date st, Date end){
-	symbol = s;
-	directory = d;
-	startDate = new Date(st);
-	endDate = new Date(end);
-	fileName = directory + symbol + "_Daily.csv";
-}
 
+	public YahooData(){
+	symbol = "" ;
+	directory = "/";
+	startDate = new Date();
+	endDate = new Date();
+	fileName = "_Daily.csv";
+	}
+
+	public YahooData(String s, String d, Date st, Date end){
+		symbol = s;
+		directory = d;
+		startDate = new Date(st);
+		endDate = new Date(end);
+		fileName = d + symbol + "_Daily.csv";
+	}
+
+	public YahooData(String s, String d, String st, String end){
+		symbol = s;
+		directory = d;
+		startDate = new Date(st);
+		endDate = new Date(end);
+		fileName = d + symbol + "_Daily.csv";
+	}
+	
 	public YahooData( String s, String d, String f, Date sD, Date eD){
 		
 		setSymbol(s);
@@ -33,43 +50,68 @@ private String fileName;
 		fileName = d + f;  
 			
 	}
+	
+public YahooData( YahooData d){
+		
+		setSymbol(d.symbol);
+		setDirectory(d.directory);
+		setStartDate(d.startDate);
+		setEndDate(d.endDate);
+		setFileName(d.fileName);  
+			
+	}
 
 
 	
-	public boolean load() throws Exception{
+	public boolean load() {
 		//create URL a string
 		
 		String url = "http://chart.finance.yahoo.com/table.csv?s=";
-		url += symbol + "&a=" + startDate.getMonth() + "&b= " + startDate.getDay() + "&c=" + startDate.getYear();
-		url += "&d=" + endDate.getMonth() + "&e=" + startDate.getDay() + "&f=" + startDate.getYear() ;
+		url += symbol + "&a=" + (startDate.getMonth() - 1) + "&b=" + startDate.getDay() + "&c=" + startDate.getYear();
+		url += "&d=" + (endDate.getMonth()-1)  + "&e=" + endDate.getDay() + "&f=" + endDate.getYear() ;
 		url += "&g=d&ignore=.csv";
 		
-		
-		URL finance = new URL(url);
-		
-		BufferedReader reader = new BufferedReader(
-				new InputStreamReader(finance.openStream()));
-		
-		reader.readLine();
-		Vector<Bar> Bars = new Vector <Bar>(1000, 100); 
-		String row ;
-	
-		
-		while((row = reader.readLine())!= null){
+		try{
+			URL urlYahoo = new URL(url);
 			
-				//line = row.split(",");
+			//open the connection
+			URLConnection urlConn = urlYahoo.openConnection();
+			
+			
+			//get the data
+			InputStreamReader inStream = new InputStreamReader(urlConn.getInputStream());
+			
+			//read the data
+			BufferedReader buffer = new BufferedReader(inStream);
 		
-			//b1.setOpen(Float.parseFloat(line[1]));
+			FileWriter outFile = new FileWriter(this.fileName);
+			BufferedWriter bOut = new BufferedWriter(outFile);
+			
+			String lineStr;
+			
+			while((lineStr = buffer.readLine())!= null){
 				
-				Bar bar1 = new Bar(row);
-				Bars.add(bar1);
-				
-				
+				bOut.write(lineStr + "\n");	
+			}
+			
+			bOut.close();
+			outFile.close();
+			
+			
+			return true;
+			
+			
+		}catch(MalformedURLException e){
+			
+			System.out.println("Exception: " + e.getMessage());
+			return false;
+			
+		}catch (IOException e){ // for exception from file handling
+			System.out.println("Exception: " + e.getMessage());
+			return false;
 		}
 		
-		reader.close();
-		
-		return true;
+	
 	}
 	
 	public String getSymbol(){
@@ -93,6 +135,7 @@ private String fileName;
 	//
 	public void setSymbol(String s){
 		symbol = s;
+		fileName = directory + symbol + "_Daily.csv";
 		
 	}
 	
@@ -105,14 +148,42 @@ private String fileName;
 		startDate = new Date(sD);
 		
 	}
-	public void setEndDate(Date eD){
+	public void setStartDate(String sD){
 		
-		endDate = new Date(eD);;
+		startDate = new Date(sD);
 		
 	}
-	public void setFileName(String s){
-		symbol = s;
+	public void setEndDate(Date eD){
 		
+		endDate = new Date(eD);
+		
+	}
+	public void setEndDate(String eD){
+		
+		endDate = new Date(eD);
+		
+	}
+	public void setFileName(String f){
+		fileName = directory + f;
+		
+	}
+	
+	public void setData(String s, String d, Date st, Date end){
+		symbol = s;
+		directory = d;
+		startDate = new Date(st);
+		endDate = new Date(end);
+		fileName = d + symbol + "_Daily.csv";
+	}
+	
+	public void setData( String s, String d, String f, Date sD, Date eD){
+		
+		setSymbol(s);
+		setDirectory(d);
+		setStartDate(sD);
+		setEndDate(eD);
+		fileName = d + f;  
+			
 	}
 	
 

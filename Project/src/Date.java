@@ -75,7 +75,7 @@ public class Date {
 			}else 
 				return false;
 		}
-		//computer how many days elapsed since the beginning of the year
+		//computes how many days elapsed since the beginning of the year
 		//example daysSinceYear("02/12/2001") = 31 for January + 12 for February
 		private int daysSinceYear(Date d) {
 			int sumDays = 0;
@@ -172,7 +172,7 @@ public class Date {
 	        //you can add some constraints <0 < 30
 	        //Complete this
 	        if (d < 1 || d > 31) {
-	            System.out.println("Invalid day");
+	            System.out.println("Invalid day\n");
 	            d = Days[month];
 	            return;
 	        }
@@ -201,7 +201,8 @@ public class Date {
 	    }
 	    public void setMonth(int m) {
 	        if (m < 1 || m >12 ) {
-	            System.out.println("Invalid month");
+	        	System.out.println(m);
+	            System.out.println("Invalid month\n");
 	            month = 12;
 	            return;
 	        }
@@ -214,7 +215,8 @@ public class Date {
 	    }
 	    public void setYear(int y) {
 	        if (y < 0) {
-	            System.out.println("Invalid year");
+	        	System.out.println(y);
+	            System.out.println("\nInvalid year");
 	            year = 0;
 	            return;
 	        }
@@ -235,50 +237,31 @@ public class Date {
 	    //set the date from a string
 	    public void setDate(String s) {
 	    	
-	    	//Pattern p = Pattern.compile("(/)|(-)");
+	    	Pattern p = Pattern.compile("(/)|(-)");
 	    	
-	    	s.replaceAll("\\s", "");
+	    	//s.replaceAll("\\s", "");
 	    	String[] splitDate; 
 	    	
-	    	if(s.contains("/")){
-	      
-	    	 splitDate = s.split("/");
-	    	
+	    	 splitDate = p.split(s);
+	    	 
 	    	 if (splitDate.length != 3) {
 		            System.out.println("Invalid date!");
 		            return;
 		        }
 	    	 
-		        setMonth(Integer.valueOf(splitDate[0]));
-		        setDay(Integer.valueOf(splitDate[1]));
-		        setYear(Integer.valueOf(splitDate[2]));
-	    	 
-	    	} else if(s.contains("-")){
-	    		
-	    		splitDate = s.split("-");
-	    		
-	    		if (splitDate.length != 3) {
-		            System.out.println("Invalid date!");
-		            return;
-		        }
-	    		
-	    		setYear(Integer.valueOf(splitDate[0]));
-		        setMonth(Integer.valueOf(splitDate[1]));
-		        setDay(Integer.valueOf(splitDate[2]));
-		        
-	    	}else {
-	    		splitDate = null;
+	    	 if(s.contains("-")){
+	    		 	setYear(Integer.valueOf(splitDate[0]));
+	    		 	setMonth(Integer.valueOf(splitDate[1]));
+			        setDay(Integer.valueOf(splitDate[2]));
+	
+	    	 }else {
+	    		 setMonth(Integer.valueOf(splitDate[0]));
+			     setDay(Integer.valueOf(splitDate[1]));
+			     setYear(Integer.valueOf(splitDate[2]));
+	    	 }
 	    	}
-	    	 
-	        
-	        
-	        
-	        
-	        setYear(Integer.valueOf(splitDate[0]));
-	        setMonth(Integer.valueOf(splitDate[1]));
-	        setDay(Integer.valueOf(splitDate[2]));
-	    	
-	    }
+	    
+	    
 	    
 	    //read the string date from the user
 	    public void readDate(Scanner keyb) {

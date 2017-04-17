@@ -27,6 +27,16 @@ public class Bar {
 		
 	}
 	
+	public Bar(Bar b){
+		date = new Date(b.date);
+		open = b.open;
+		high = b.high;
+		low = b.low;
+		close = b.close;
+		adjustedClose = b.adjustedClose;
+		volume = b.volume;
+	}
+	
 	public Bar(Date d, float o, float h, float l, float c, float adjC, int v) {
 		
 		 date = new Date(d); 
