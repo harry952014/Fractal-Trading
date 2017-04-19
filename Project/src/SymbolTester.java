@@ -2,8 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+
 
 public class SymbolTester {
 	TradeArray mTrades;
@@ -78,6 +77,7 @@ public class SymbolTester {
 		//create a trade: entry date, entryprice, target, stoploss, direction
 		Trade trade = new Trade();
 		
+		
 		for (int i=2; i<mBars.size(); i++){
 			
 			//look for a fractal pattern of 5 Bars for long trade (Bullish fractal)
@@ -117,8 +117,8 @@ public class SymbolTester {
 				if(mBars.At(i+3).getClose() < mBars.At(i+2).getLow()){
 					
 					Date entDate = new Date(mBars.At(i+3).getDate()); //trigger bar's date
-					float entPrice = mBars.At(i+3).getLow();       // trigger bar's low
-					float SL = mBars.At(i+3).getHigh() + 1;      //set SL 1 tick above the trigger bar.
+					float entPrice = mBars.At(i+3).getLow();       	  //trigger bar's low
+					float SL = mBars.At(i+3).getHigh() + 1;           //set SL 1 tick above the trigger bar.
 					
 					float target = targetShort(i+3,entPrice, SL);
 					
@@ -137,35 +137,41 @@ public class SymbolTester {
 	}
 	
 	
-	public void checkLongTrade(Trade t, int k){
+	public int checkLongTrade(Trade t, int k){
 		
+		int exitIndex = k;
+		
+		
+		//from the point of entry, loop ahead to look for the target or stop-loss
 		for(int i=k; i<mBars.size(); i++){
 			
-			if(mBars.At(i).getHigh() > t.getTarget()){
+			
+			//if the bar with a high above or equal to target is found, its a win. Exit the trade.
+			if(mBars.At(i).getHigh() >= t.getTarget()){
 				
 				System.out.println("Target Reached");
 				t.close(mBars.At(i).getDate(), t.getTarget());
-				
+				exitIndex = i;
 				mTrades.insertTail(t);
 				break;
 				
-			} else if(mBars.At(i).getHigh() < t.getStopLoss()){
+				//else if the bar with a low below or equal to SL, its a loss. Exit the trade.
+			} else if(mBars.At(i).getLow() <= t.getStopLoss()){
 				
 				System.out.println("Stop-Loss Reached");
 				t.close(mBars.At(i).getDate(), t.getStopLoss());
+				exitIndex = i;
 				mTrades.insertTail(t);
 				break;
 			}
 		}
+		return exitIndex;
 	}
 	
-	public void checkShortTrade(Trade t, int k){
+	public int checkShortTrade(Trade t, int k){
 		
-		if(t.getTarget() == t.getEntryPrice()){
-			t.close(t.getEntryDate(), t.getEntryPrice());
-			mTrades.insertTail(t);
-			return;
-		}
+		int exitIndex = k;
+		
 		
 		for(int i=k; i<mBars.size(); i++){
 			
@@ -173,17 +179,21 @@ public class SymbolTester {
 				
 				System.out.println("Target Reached");
 				t.close(mBars.At(i).getDate(), t.getTarget());
+				exitIndex = i;
 				mTrades.insertTail(t);
 				break;
 				
-			} else if(mBars.At(i).getHigh() > t.getStopLoss()){
+			} else if(mBars.At(i).getHigh() >= t.getStopLoss()){
 				
 				System.out.println("Stop-Loss Reached");
 				t.close(mBars.At(i).getDate(), t.getStopLoss());
+				exitIndex = i;
 				mTrades.insertTail(t);
 				break;
 			}
 		}
+		
+		return exitIndex;
 	}
 	
 	//this method finds the lowest low in 5-bar fractal
@@ -201,23 +211,29 @@ public class SymbolTester {
 	//method to check the bullish fractals (for long entry)
 	final boolean isBullish(int i){
 		
-		return mBars.At(i).getHigh() > mBars.At(i-1).getHigh()   &&
+		if(i<mBars.size()-3)
+			return mBars.At(i).getHigh() > mBars.At(i-1).getHigh()   &&
 				mBars.At(i-1).getHigh() > mBars.At(i-2).getHigh() &&
 				mBars.At(i).getLow() > mBars.At(i+1).getLow()    &&
 				mBars.At(i+1).getLow() > mBars.At(i+2).getLow();
+				
+		return false;
 	}
 	
 	//method to check the bearish fractals (for short entry)
 	final boolean isBearish(int i){
 		
-		return mBars.At(i-1).getLow() < mBars.At(i-2).getLow()   &&
+		if(i<mBars.size()-3)
+			return mBars.At(i-1).getLow() < mBars.At(i-2).getLow()   &&
 				 mBars.At(i).getHigh() < mBars.At(i+1).getHigh() &&
 				 mBars.At(i+1).getHigh() < mBars.At(i+2).getHigh();
+		
+		return false;
 	}
 	
 	public float targetShort(int k, float entP, float SL){
 		
-		for (int i = k+2; !isBullish(i); i++){
+		for (int i = k+2; !isBullish(i)&&i<mBars.size()-3; i++){
 			
 			
 			// look for a swing low before the next fractal formation (bullish in this case)
@@ -231,7 +247,7 @@ public class SymbolTester {
 		}
 		
 		//if no swing low found, set the target below the entry price 
-		//the range between entry price and stop loss.
+		//the difference between entry price and stop loss.
 		return entP - (SL - entP);
 	}
 	
@@ -252,7 +268,7 @@ public class SymbolTester {
 		}
 		
 		//if no swing high found, set the target above the entry price 
-		//twice the range between entry price and stop loss.
+		//twice the difference between entry price and stop loss.
 		return entP + (2*(entP - SL));
 	}
 }
