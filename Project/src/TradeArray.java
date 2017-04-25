@@ -32,18 +32,21 @@ public class TradeArray {
 
 	public TradeArray(){
 		
-		vec = new Vector<Trade> (1000);
+		vec = new Vector<Trade> (10000,1000);
 		wins = losses = 0;
 	}
 	
 	
 	//The most important method is method that computes the statistics and 
 		//records them in a file (passed a parmater)
+	
 		public void stats(String fileName) {
 			//go through all trades and record stats
 			
 			String lineStr="";
 			float PL;
+			float pLPercent;
+			float totalPLPercent=0;
 			int wins=0,losses=0;
 			float totalProfit=0;
 			float totalLoss = 0;
@@ -52,19 +55,7 @@ public class TradeArray {
 			float avgWin = 0;
 			float avgLoss = 0;
 			
-			
 	
-	
-	APPT = (totalProfit)/(vec.size());      	//Average profit per trade
-	percentWin = 100 * (wins)/(vec.size());		// % winners
-	avgWin = (totalProfit)/(wins);				//Average win
-	avgLoss = (totalLoss)/(losses);				//Average loss
-	
-	lineStr += "\n\n\nAPPT, " + APPT + "\n% Winners, " + percentWin + "%" 
-			+ "\navgWin, " + avgWin + "\navgLoss, " + avgLoss;
-			
-			
-			
 			
 			try{
 			FileWriter outFile = new FileWriter(fileName);
@@ -73,30 +64,46 @@ public class TradeArray {
 
 			for(int i=0; i<vec.size(); i++){
 				
-				lineStr = vec.elementAt(i).toString();
-				PL = vec.elementAt(i).PL();
+				lineStr = At(i).toString();
+				PL = At(i).PL();
+				
+				
+				
+				if(At(i).getDirection() == "long"){
+					pLPercent = (PL * 100) / At(i).getEntryPrice();
+				}else{
+					pLPercent = (PL * 100) / At(i).getExitPrice();
+				}
 				
 				if(PL>=0){
 					
+					
+					
 					lineStr += "\nProfit, " + PL; 
+					lineStr += "\nPL %, " + pLPercent;
+		
 					totalProfit += PL;
 					wins++;
+					totalPLPercent += pLPercent ; 
+					
 				}else{
 					lineStr += "\nLoss, " + PL;
+					lineStr += "\nPL %, " + Math.abs(pLPercent);
 					totalLoss += PL; 
 					losses++;
+					totalPLPercent += Math.abs(pLPercent) ; 
+					
 				}
 			
-				
 				bOut.write(lineStr + "\n");	
 			}
 			
 		APPT = (totalProfit)/(vec.size());      	//Average profit per trade
 		percentWin = 100 * (wins)/(vec.size());		// % winners
 		avgWin = (totalProfit)/(wins);				//Average win
-		avgLoss = (totalLoss)/(losses);				//Average loss
+		avgLoss = (totalProfit)/(losses);				//Average loss
 
-		String statStr = "\n\n\nAPPT, " + APPT + "\n% Winners, " + percentWin + "%" 
+		String statStr = "\n\n\nAPPT, " + APPT + "\nTotal PL %, " + totalPLPercent + "\n% Winners, " + percentWin + "%" 
 		+ "\nAverage Win, " + avgWin + "\nAverage Loss, " + avgLoss;
 			
 		bOut.write(statStr + "\n");	
@@ -162,7 +169,13 @@ public class TradeArray {
 	public void setVec(Vector<Trade> vec) {
 		this.vec = vec;
 	}
+	
+	public int size(){
+		
+		return vec.size();
+	}
 
+	
 	
 
 }

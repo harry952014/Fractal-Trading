@@ -78,7 +78,7 @@ public class SymbolTester {
 		Trade trade = new Trade();
 		
 		
-		for (int i=2; i<mBars.size(); i++){
+		for (int i=2; i<mBars.size()-10; i++){
 			
 			//look for a fractal pattern of 5 Bars for long trade (Bullish fractal)
 			if(isBullish(i)){
@@ -104,8 +104,10 @@ public class SymbolTester {
 				
 					//tradeCheck will update exitDate,and exitPrice
 					//insert trade into mTrades
-					checkLongTrade(trade, i+4);
-					break;
+					
+					mTrades.insertTail(checkLongTrade(trade, i+4));
+					//System.out.println(checkLongTrade(trade, i+4));
+					
 				}
 				
 				//look for a fractal pattern of 5 Bars for short trade (Bearish fractal)
@@ -126,20 +128,23 @@ public class SymbolTester {
 					
 					//tradeCheck will update exitDate,and exitPrice
 					//insert trade into mTrades
-					checkShortTrade(trade, i+4);
-					break;
+				
+					mTrades.insertTail(checkShortTrade(trade, i+4));
+					//System.out.println(checkShortTrade(trade, i+4));
+					
+					
 				}
 			}
-			
+	
 		}
-
+			
 		return trade;
 	}
 	
 	
-	public int checkLongTrade(Trade t, int k){
+	public Trade checkLongTrade(Trade t, int k){
 		
-		int exitIndex = k;
+		
 		
 		
 		//from the point of entry, loop ahead to look for the target or stop-loss
@@ -151,27 +156,28 @@ public class SymbolTester {
 				
 				System.out.println("Target Reached");
 				t.close(mBars.At(i).getDate(), t.getTarget());
-				exitIndex = i;
-				mTrades.insertTail(t);
-				break;
+				
+				//mTrades.insertTail(t);
+				//System.out.println(t.toString());
+				return t;
+				
 				
 				//else if the bar with a low below or equal to SL, its a loss. Exit the trade.
 			} else if(mBars.At(i).getLow() <= t.getStopLoss()){
 				
 				System.out.println("Stop-Loss Reached");
 				t.close(mBars.At(i).getDate(), t.getStopLoss());
-				exitIndex = i;
-				mTrades.insertTail(t);
-				break;
+				
+				//mTrades.insertTail(t);
+				//System.out.println(t.toString());
+				return t;
 			}
 		}
-		return exitIndex;
+		return t;
+		
 	}
 	
-	public int checkShortTrade(Trade t, int k){
-		
-		int exitIndex = k;
-		
+	public Trade checkShortTrade(Trade t, int k){
 		
 		for(int i=k; i<mBars.size(); i++){
 			
@@ -179,21 +185,20 @@ public class SymbolTester {
 				
 				System.out.println("Target Reached");
 				t.close(mBars.At(i).getDate(), t.getTarget());
-				exitIndex = i;
-				mTrades.insertTail(t);
-				break;
+				//mTrades.insertTail(t);
+				//System.out.println(t.toString());
+				return t;
 				
 			} else if(mBars.At(i).getHigh() >= t.getStopLoss()){
 				
 				System.out.println("Stop-Loss Reached");
 				t.close(mBars.At(i).getDate(), t.getStopLoss());
-				exitIndex = i;
-				mTrades.insertTail(t);
-				break;
+				//mTrades.insertTail(t);
+				//System.out.println(t.toString());
+				return t;
 			}
 		}
-		
-		return exitIndex;
+	return t;
 	}
 	
 	//this method finds the lowest low in 5-bar fractal
