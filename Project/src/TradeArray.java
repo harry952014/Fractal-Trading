@@ -7,9 +7,20 @@ public class TradeArray {
 	
 	private Vector<Trade> vec;
 	private int wins,losses;
+	private String symbol;
 	
 	//constructor
 	
+	public String getSymbol() {
+		return symbol;
+	}
+
+
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
+
+
 	public int getWins() {
 		return wins;
 	}
@@ -33,6 +44,7 @@ public class TradeArray {
 	public TradeArray(){
 		
 		vec = new Vector<Trade> (10000,1000);
+		symbol = "";
 		wins = losses = 0;
 	}
 	
@@ -43,7 +55,7 @@ public class TradeArray {
 		public void stats(String fileName) {
 			//go through all trades and record stats
 			
-			String lineStr="";
+			String lineStr = "";
 			float PL;
 			float pLPercent;
 			float totalPLPercent=0;
@@ -66,8 +78,7 @@ public class TradeArray {
 				
 				lineStr = At(i).toString();
 				PL = At(i).PL();
-				
-				
+			
 				
 				if(At(i).getDirection() == "long"){
 					pLPercent = (PL * 100) / At(i).getEntryPrice();
@@ -76,8 +87,6 @@ public class TradeArray {
 				}
 				
 				if(PL>=0){
-					
-					
 					
 					lineStr += "\nProfit, " + PL; 
 					lineStr += "\nPL %, " + pLPercent;
@@ -101,7 +110,7 @@ public class TradeArray {
 		APPT = (totalProfit)/(vec.size());      	//Average profit per trade
 		percentWin = 100 * (wins)/(vec.size());		// % winners
 		avgWin = (totalProfit)/(wins);				//Average win
-		avgLoss = (totalProfit)/(losses);				//Average loss
+		avgLoss = (totalLoss)/(losses);				//Average loss
 
 		String statStr = "\n\n\nAPPT, " + APPT + "\nTotal PL %, " + totalPLPercent + "\n% Winners, " + percentWin + "%" 
 		+ "\nAverage Win, " + avgWin + "\nAverage Loss, " + avgLoss;

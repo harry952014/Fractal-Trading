@@ -22,7 +22,7 @@ public class Tester {
 	public TradeArray tesAll() {
 		//open the file of the symbols 
 		SymbolTester st = null;
-		String  Symbol="AKS";
+		String  Symbol="none";
 		
 		try{
 			 
@@ -38,15 +38,15 @@ public class Tester {
 				
 				System.out.println("--------------------------- " + Symbol + "--------------------");
 				st.loadBars();
-				Trade temp = st.test();
+				TradeArray temp = st.test();
 				//Add temp to mTrades
 				//mTrades.insertTail(temp);
-				
+				//temp.setSymbol(Symbol);
 				
 				for(int i=0; i<st.getmTrades().size(); i++){
 					
-					mTrades.insertTail(st.getmTrades().At(i));
-					System.out.println(st.getmTrades().At(i));
+					mTrades.insertTail(temp.At(i));
+					//System.out.println(temp.At(i));
 				}
 				
 				

@@ -71,7 +71,7 @@ public class SymbolTester {
 			}
 		}
 	
-	public Trade test() {
+	public TradeArray test() {
 		//go through mBars
 		//if pattern found 
 		//create a trade: entry date, entryprice, target, stoploss, direction
@@ -80,17 +80,19 @@ public class SymbolTester {
 		
 		for (int i=2; i<mBars.size()-10; i++){
 			
+			int trigInx;
 			//look for a fractal pattern of 5 Bars for long trade (Bullish fractal)
 			if(isBullish(i)){
 				
 				//look for the trigger bar(after the 5-bar fractal,
 				//the bar that closes above the previous bar's high).
 				//If found, enter the "long" trade.
-				
-				if(mBars.At(i+3).getClose() > mBars.At(i+2).getHigh()){
-			
-					Date entDate = new Date(mBars.At(i+3).getDate());  //trigger bar's date
-					float entPrice = mBars.At(i+3).getHigh();         // trigger bar's high
+				trigInx = bullishTrigger(i);
+				if(trigInx != -1){
+					
+					 
+					Date entDate = new Date(mBars.At(trigInx).getDate());  //trigger bar's date
+					float entPrice = mBars.At(trigInx).getHigh();         // trigger bar's high
 					
 					//stop loss should be below the low of fractal pattern
 					float SL = minLow(mBars.At(i-2).getLow(),mBars.At(i-1).getLow(),
@@ -102,48 +104,50 @@ public class SymbolTester {
 				
 					trade.open(entDate,entPrice,SL,target,"long");    //place the order
 				
-					//tradeCheck will update exitDate,and exitPrice
+					//checkLongTrade will look for the target after the trigger bar
+					//and update exitDate,and exitPrice
 					//insert trade into mTrades
 					
-					mTrades.insertTail(checkLongTrade(trade, i+4));
+					mTrades.insertTail(checkLongTrade(trade, trigInx));
 					//System.out.println(checkLongTrade(trade, i+4));
 					
-				}
 				
+				}
 				//look for a fractal pattern of 5 Bars for short trade (Bearish fractal)
 			}else if(isBearish(i)){
 				
 				//look for the trigger bar(after the 5-bar fractal,
 				//the bar that closes below the previous bar's low).
 				//If found, enter the "short" trade.
-				if(mBars.At(i+3).getClose() < mBars.At(i+2).getLow()){
+				
+				trigInx = bullishTrigger(i);
+				if(trigInx != -1){
 					
-					Date entDate = new Date(mBars.At(i+3).getDate()); //trigger bar's date
-					float entPrice = mBars.At(i+3).getLow();       	  //trigger bar's low
-					float SL = mBars.At(i+3).getHigh() + 1;           //set SL 1 tick above the trigger bar.
-					
+					Date entDate = new Date(mBars.At(trigInx).getDate());           //trigger bar's date
+					float entPrice = mBars.At(trigInx).getLow();       	  			//trigger bar's low
+					float SL = mBars.At(trigInx).getHigh() + 1;           			//set SL 1 tick above the trigger bar.
 					float target = targetShort(i+3,entPrice, SL);
 					
 					trade.open(entDate,entPrice,SL,target,"short");
 					
-					//tradeCheck will update exitDate,and exitPrice
+					//checkShortTrade will look for the target after the trigger bar
+					//and update exitDate,and exitPrice
 					//insert trade into mTrades
 				
-					mTrades.insertTail(checkShortTrade(trade, i+4));
-					//System.out.println(checkShortTrade(trade, i+4));
+					mTrades.insertTail(checkShortTrade(trade, trigInx));           
+					//System.out.println(mTrades.At(mTrades.size()));
 					
-					
-				}
+				}	
+				
 			}
 	
 		}
 			
-		return trade;
+		return mTrades;
 	}
 	
 	
 	public Trade checkLongTrade(Trade t, int k){
-		
 		
 		
 		
@@ -222,6 +226,11 @@ public class SymbolTester {
 				mBars.At(i).getLow() > mBars.At(i+1).getLow()    &&
 				mBars.At(i+1).getLow() > mBars.At(i+2).getLow();
 				
+			//return mBars.At(i).getLow() < mBars.At(i-1).getLow()   &&
+					//mBars.At(i-1).getLow() < mBars.At(i-2).getLow() &&
+					//mBars.At(i-2).getHigh() > mBars.At(i-3).getHigh()    &&
+					//mBars.At(i-3).getHigh() > mBars.At(i-4).getHigh();
+				
 		return false;
 	}
 	
@@ -232,6 +241,10 @@ public class SymbolTester {
 			return mBars.At(i-1).getLow() < mBars.At(i-2).getLow()   &&
 				 mBars.At(i).getHigh() < mBars.At(i+1).getHigh() &&
 				 mBars.At(i+1).getHigh() < mBars.At(i+2).getHigh();
+		
+		//return mBars.At(i).getHigh() > mBars.At(i-1).getHigh()   &&
+				// mBars.At(i-1).getHigh() > mBars.At(i-2).getHigh() &&
+				// mBars.At(i-3).getLow() < mBars.At(i-4).getLow();
 		
 		return false;
 	}
@@ -276,4 +289,33 @@ public class SymbolTester {
 		//twice the difference between entry price and stop loss.
 		return entP + (2*(entP - SL));
 	}
+	
+	//Wait for the trigger bar to close above the high of the fractal
+	
+	public int bullishTrigger(int i){
+		
+		for(int j= i+1; j<200; j++){
+			
+			if(mBars.At(j).getClose() > mBars.At(i-2).getHigh())
+				return j;
+		}
+		
+		return -1;
+		
+	}
+	
+	//Wait for the trigger bar to close below the low of the fractal
+	
+	public int bearishTrigger(int i){
+		
+		for(int j= i+1; j<200; j++){
+			
+			if(mBars.At(j).getClose() < mBars.At(i-2).getLow())
+				return j;
+		}
+		
+		return -1;
+		
+	}
+	
 }
