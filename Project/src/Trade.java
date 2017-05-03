@@ -101,6 +101,14 @@ public class Trade {
 		}
 	}
 	
+	public double percentPL() {             //Profit or Loss
+		if (Direction.equals("long")){
+			return ((exitPrice - entryPrice)/entryPrice) * 100;
+		}else {
+			return ((entryPrice - exitPrice)/entryPrice) * 100;
+		}
+	}
+	
 	public String toString(){
 		
 		String st = "\nEnter Date:," + entryDate + "\nEntry Price:, " + entryPrice + 
