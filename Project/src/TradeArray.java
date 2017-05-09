@@ -42,11 +42,11 @@ public class TradeArray {
 				outFile = new File(fileName);
 				int counter = 1;
 				while (outFile.exists()) {
-					outFile = new File(fileName + "("+counter+")");
+					outFile = new File(fileName + "("+counter+").csv" );
 					counter++;
 				}
 				
-			FileWriter fw = new FileWriter(fileName);
+			FileWriter fw = new FileWriter(outFile);
 			BufferedWriter bOut = new BufferedWriter(fw);
 			
             // All the variables to store stats.
@@ -74,7 +74,7 @@ public class TradeArray {
 						}
 					}else {//it is a loss	
 						numberLoss++;
-						numberShortLoss++;
+						numberLongLoss++;
 						//loss is negative
 						percentLoss += this.At(i).percentPL();
 						percentShortLoss += this.At(i).percentPL();

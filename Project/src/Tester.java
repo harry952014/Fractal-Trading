@@ -39,6 +39,7 @@ public class Tester {
 				System.out.println("--------------------------- " + Symbol + "--------------------");
 				st.loadBars();
 				TradeArray temp = st.test();
+				temp.stats("SymbolStats");
 				//Add temp to mTrades
 				//mTrades.insertTail(temp);
 				//temp.setSymbol(Symbol);
